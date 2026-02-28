@@ -31,7 +31,7 @@ class ImageService
 
         $hash = hash('sha256', $encoded);
 
-        $path = 'images/' . Str::uuid() . '.webp';
+        $path = Str::uuid() . '.webp';
 
         return ImageCompressedDto::from([
             'encoded' => $encoded,
