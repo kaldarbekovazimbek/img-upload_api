@@ -22,8 +22,8 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users',
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
         ];
     }
@@ -32,8 +32,8 @@ class RegisterRequest extends FormRequest
     {
         return [
             'image.required' => 'An image file is required.',
-            'image.mimes'    => 'Only JPEG and PNG images are accepted.',
-            'image.max'      => 'The image must not exceed 5 MB.',
+            'image.mimes' => 'Only JPEG and PNG images are accepted.',
+            'image.max' => 'The image must not exceed 5 MB.',
         ];
     }
 }

@@ -22,7 +22,7 @@ class ImageController extends Controller
     {
         $image = $storeImageUseCase->execute($request->file('image'));
 
-        return ApiResponse::success($image, 'Image uploaded successfully.', 201);
+        return ApiResponse::success($image, 'Image accepted, processing in background.', 202);
     }
 
     public function show(int $id, ImageRepository $imageRepository)

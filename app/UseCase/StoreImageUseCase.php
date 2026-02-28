@@ -2,53 +2,37 @@
 
 namespace App\UseCase;
 
-use App\Dto\StoreImageDto;
+use App\Enums\ImageStatus;
+use App\Jobs\ProcessImageJob;
 use App\Models\Image;
-use App\Repository\ImageRepository;
-use App\Services\ImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
-readonly class StoreImageUseCase
+class StoreImageUseCase
 {
-    public function __construct(
-        private ImageService    $imageService,
-        private ImageRepository $imageRepository,
-    ) {
-    }
-
     public function execute(UploadedFile $file): Image
     {
-        $compressedDto = $this->imageService->compress($file);
-        $image = $this->imageRepository->getByHash($compressedDto->hash);
+        $tempPath = 'pending/' . Str::uuid() . '.' . $file->getClientOriginalExtension();
 
-        if ($image) {
-            $existing = $this->imageRepository->getById($image->id);
-            if ($existing) {
-                return $existing;
-            }
+        Storage::disk('temp')->put($tempPath, $file->get());
 
-            $image->increment('reference_count');
-            auth()->user()->images()->attach($image->id);
+        $image = new Image();
+        $image->name = $file->getClientOriginalName();
+        $image->original_size = $file->getSize();
+        $image->size = $file->getSize();
+        $image->mime_type = $file->getMimeType();
+        $image->path = $tempPath;
+        $image->disk = 'temp';
+        $image->reference_count = 1;
+        $image->status = ImageStatus::PENDING;
+        $image->save();
 
-            return $image;
-        }
+        $user = auth()->user();
+        $user->images()->attach($image->id);
 
-        Storage::disk('images')->put($compressedDto->path, $compressedDto->encoded);
+        ProcessImageJob::dispatch($image->id, $user->id);
 
-        $storeImageDto = StoreImageDto::from([
-            'name' => $file->getClientOriginalName(),
-            'hash' => $compressedDto->hash,
-            'path' => $compressedDto->path,
-            'disk' => 'images',
-            'mime_type' => $compressedDto->fileType,
-            'original_size' => $file->getSize(),
-            'size' => Storage::disk('images')->size($compressedDto->path),
-        ]);
-
-        $newImage = $this->imageRepository->upload($storeImageDto);
-        auth()->user()->images()->attach($newImage->id);
-
-        return $newImage;
+        return $image;
     }
 }

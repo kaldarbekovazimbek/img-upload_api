@@ -2,12 +2,13 @@
 
 namespace App\Repository;
 
-use App\Dto\StoreImageDto;
+use App\Dto\ImageCompressedDto;
+use App\Enums\ImageStatus;
 use App\Models\Image;
 
 class ImageRepository
 {
-    public function getById($id): ?Image
+    public function getById(int $id): ?Image
     {
         $userId = auth()->id();
 
@@ -19,31 +20,60 @@ class ImageRepository
             ->first();
     }
 
-    public function upload(StoreImageDto $dto): Image
+    public function findById(int $id): ?Image
     {
-        $image = new Image();
-        $image->hash = $dto->hash;
-        $image->mime_type = $dto->mime_type;
-        $image->name = $dto->name;
-        $image->disk = $dto->disk;
-        $image->path = $dto->path;
-        $image->original_size = $dto->original_size;
-        $image->size = $dto->size;
-        $image->reference_count = $dto->reference_count;
-        $this->save($image);
-        return $image;
-    }
-    public function save(Image $image): void
-    {
-        $image->save();
-    }
-    public function delete(Image $image): void
-    {
-        $image->delete();
+        return Image::query()->where('id', $id)->first();
     }
 
     public function getByHash(string $hash): ?Image
     {
         return Image::query()->where('hash', $hash)->first();
+    }
+
+    public function markAsReady(Image $image, ImageCompressedDto $dto, int $size): void
+    {
+        $image->hash = $dto->hash;
+        $image->mime_type = $dto->fileType;
+        $image->path = $dto->path;
+        $image->disk = 'images';
+        $image->size = $size;
+        $image->status = ImageStatus::READY;
+        $this->save($image);
+    }
+
+    public function markAsFailed(Image $image): void
+    {
+        $image->status = ImageStatus::FAILED;
+        $this->save($image);
+    }
+
+    public function attachUser(Image $image, int $userId): void
+    {
+        $image->users()->attach($userId);
+    }
+
+    public function detachUser(Image $image, int $userId): void
+    {
+        $image->users()->detach($userId);
+    }
+
+    public function incrementReferenceCount(Image $image): void
+    {
+        $image->increment('reference_count');
+    }
+
+    public function isOwnedByUser(Image $image, int $userId): bool
+    {
+        return $image->users()->where('users.id', $userId)->exists();
+    }
+
+    public function save(Image $image): void
+    {
+        $image->save();
+    }
+
+    public function delete(Image $image): void
+    {
+        $image->delete();
     }
 }

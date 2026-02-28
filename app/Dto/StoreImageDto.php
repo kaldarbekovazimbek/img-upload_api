@@ -12,9 +12,9 @@ class StoreImageDto extends Data
         public string $name,
         public string $path,
         public string $disk,
-        public int $original_size,
-        public int $size,
-        public int $reference_count = 1
+        public int    $original_size,
+        public int    $size,
+        public int    $reference_count = 1
     ) {
     }
 }

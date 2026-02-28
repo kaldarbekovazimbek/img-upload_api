@@ -3,16 +3,15 @@
 namespace App\Services;
 
 use App\Dto\ImageCompressedDto;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Encoders\WebpEncoder;
 use Intervention\Image\Laravel\Facades\Image;
 
 class ImageService
 {
-    public function compress(UploadedFile $file): ImageCompressedDto
+    public function compress(mixed $source): ImageCompressedDto
     {
-        $image = Image::read($file);
+        $image = Image::read($source);
 
         $image->orient();
 
