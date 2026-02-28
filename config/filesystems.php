@@ -60,6 +60,15 @@ return [
             'report' => false,
         ],
 
+        'images' => [
+            'driver'     => 'local',
+            'root'       => storage_path('app/public/images'),
+            'url'        => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/images',
+            'visibility' => 'public',
+            'throw'      => true,
+            'report'     => false,
+        ],
+
     ],
 
     /*
