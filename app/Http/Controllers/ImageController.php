@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UploadImageRequest;
 use App\Models\Image;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ImageController extends Controller
 {
+    public function __construct(
+        private readonly ImageService $imageService,
+    ) {
+    }
+
     public function index()
     {
         $images = auth()->user()->images()->latest()->get();
@@ -18,12 +24,15 @@ class ImageController extends Controller
 
     public function upload(UploadImageRequest $request)
     {
-        $disk = 'images';
         $file = $request->file('image');
 
-        $hash = hash_file('sha256', $file->getRealPath());
+        [$binaryData, $fileType, $path] = $this->imageService->compress($file);
 
-        $existing = Image::where('hash', $hash)->first();
+        // hash от нормализованных байтов
+        $hash = hash('sha256', $binaryData);
+
+        // ищем существующий файл
+        $existing = Image::query()->where('hash', $hash)->first();
 
         if ($existing) {
             if ($request->user()->images()->where('image_id', $existing->id)->exists()) {
@@ -36,22 +45,24 @@ class ImageController extends Controller
             return response()->json($existing, 201);
         }
 
-        $path = $file->store('', $disk);
+        // если новый файл — сохраняем на диск
+        Storage::disk('images')->put($path, $binaryData);
 
-        $image = Image::create([
-            'name'            => $file->getClientOriginalName(),
-            'path'            => $path,
-            'disk'            => $disk,
-            'mime_type'       => $file->getClientMimeType(),
-            'hash'            => $hash,
-            'original_size'   => $file->getSize(),
-            'size'            => Storage::disk($disk)->size($path),
+        // создаём запись в базе
+        $newImage = Image::create([
+            "name" => $file->getClientOriginalName(),
+            'hash' => $hash,
+            'path' => $path,
+            'disk' => 'public',
+            'mime_type' => $fileType,
+            'original_size' => $file->getSize(),
+            'size' => Storage::disk('public')->size($path),
             'reference_count' => 1,
         ]);
 
-        $request->user()->images()->attach($image->id);
+        $request->user()->images()->attach($newImage->id);
 
-        return response()->json($image, 201);
+        return response()->json($newImage, 201);
     }
 
     public function get(Request $request, int $id)
