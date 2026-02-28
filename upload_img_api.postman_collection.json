@@ -1,0 +1,397 @@
+{
+  "info": {
+    "_postman_id": "d93ae7ff-cc0b-4725-be36-d5ee0f04a144",
+    "name": "upload img",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34334856"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Azim\",\n    \"email\": \"azim@emil.com\",\n    \"password\": \"Azimbek01@\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{HOST}}/api/user/register",
+              "host": [
+                "{{HOST}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"azim@email.com\",\n    \"password\": \"Azimbek01@\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{HOST}}/api/user/login",
+              "host": [
+                "{{HOST}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvcmVmcmVzaC10b2tlbiIsImlhdCI6MTc3MjE3MTg3NCwiZXhwIjoxNzcyMTc1NTAwLCJuYmYiOjE3NzIxNzE5MDAsImp0aSI6InAyVlVxRWtFYnlueFBaQlEiLCJzdWIiOiIzIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.PvIzg-j_pN0vRlxSgKghmBTLbq-kVjpwebaT6dATMAI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL2xvZ2luIiwiaWF0IjoxNzcyMTY5NzQyLCJleHAiOjE3NzIxNzMzNDIsIm5iZiI6MTc3MjE2OTc0MiwianRpIjoiUHVuQWxsZFAzdXhHaGJSTCIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.NA5edKLL_4U45MmmVsL4X8GpeJGPg-bgBUnhbGVwGdA",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{HOST}}/api/user/logout",
+              "host": [
+                "{{HOST}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resfresh",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvbG9naW4iLCJpYXQiOjE3NzIxNzQwOTUsImV4cCI6MTc3MjE3NzY5NSwibmJmIjoxNzcyMTc0MDk1LCJqdGkiOiJGWVZBanBLQ3NIMnRSRGZlIiwic3ViIjoiMyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.pKxNoY5aKSAeTjCakSJEhf2YlxVR2PhpJeUwPKYsHwg",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{HOST}}/api/user/refresh-token",
+              "host": [
+                "{{HOST}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "/image",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvbG9naW4iLCJpYXQiOjE3NzIxOTA1MzEsImV4cCI6MTc3MjE5NDEzMSwibmJmIjoxNzcyMTkwNTMxLCJqdGkiOiJVQkw5TzZQS3FISFZJUkQzIiwic3ViIjoiMyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.dtgFDWOL8bCKq7zNbj-uoQUHMMJ5ictNI7mGQbgisto",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOST}}/api/image/?",
+          "host": [
+            "{{HOST}}"
+          ],
+          "path": [
+            "api",
+            "image",
+            ""
+          ],
+          "query": [
+            {
+              "key": "",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/image/upload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvbG9naW4iLCJpYXQiOjE3NzIyMjMzNDgsImV4cCI6MTc3MjIyNjk0OCwibmJmIjoxNzcyMjIzMzQ4LCJqdGkiOiJyZ1cyRmttUzFRTGZ4a3lnIiwic3ViIjoiMyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.hpDzfvjatVdVS1iIGfe18WG4MWu-1yBJWv2ngFtithE",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "uuid": "5e221819-4b1b-4b7c-85d1-978de3709228",
+              "src": "/Users/azimbekkaldarbekov/Desktop/front_passport.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{HOST}}/api/image/upload",
+          "host": [
+            "{{HOST}}"
+          ],
+          "path": [
+            "api",
+            "image",
+            "upload"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/image/upload/{id}",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvbG9naW4iLCJpYXQiOjE3NzIyMjMzNDgsImV4cCI6MTc3MjIyNjk0OCwibmJmIjoxNzcyMjIzMzQ4LCJqdGkiOiJyZ1cyRmttUzFRTGZ4a3lnIiwic3ViIjoiMyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.hpDzfvjatVdVS1iIGfe18WG4MWu-1yBJWv2ngFtithE",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "uuid": "5e221819-4b1b-4b7c-85d1-978de3709228",
+              "src": "/Users/azimbekkaldarbekov/Desktop/front_passport.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{HOST}}/api/image/:id",
+          "host": [
+            "{{HOST}}"
+          ],
+          "path": [
+            "api",
+            "image",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/image/{id}",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "multipart/form-data",
+            "type": "text"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbGFyYXZlbC50ZXN0LmltZy11cGxvZGVyLWFwaS5vcmIubG9jYWwvYXBpL3VzZXIvbG9naW4iLCJpYXQiOjE3NzIyNjIzMDYsImV4cCI6MTc3MjI2NTkwNiwibmJmIjoxNzcyMjYyMzA2LCJqdGkiOiJneWVyYWhDVjlmQUVtSlE4Iiwic3ViIjoiMyIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.c5SrQvXkG8oEgAIDKu-s-IsXaFl2tnEC7rje7KezcRY",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"image_id\":1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{HOST}}/api/image/delete",
+          "host": [
+            "{{HOST}}"
+          ],
+          "path": [
+            "api",
+            "image",
+            "delete"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "HOST",
+      "value": ""
+    }
+  ]
+}
