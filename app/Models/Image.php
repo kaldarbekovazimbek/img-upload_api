@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property int $id
@@ -31,4 +32,9 @@ class Image extends Model
         'size',
         'reference_count',
     ];
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_images');
+    }
 }

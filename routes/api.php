@@ -18,8 +18,8 @@ Route::prefix('/user')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::prefix('/image')->group(function () {
         Route::get('/', [ImageController::class, 'index']);
-        Route::get('/{id}', [ImageController::class, 'get']);
+        Route::get('/{id}', [ImageController::class, 'show']);
         Route::post('/upload', [ImageController::class, 'upload']);
-        Route::delete('/delete', [ImageController::class, 'delete']);
+        Route::delete('/{id}', [ImageController::class, 'delete']);
     });
 });

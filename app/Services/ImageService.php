@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Dto\ImageCompressedDto;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Encoders\WebpEncoder;
@@ -9,7 +10,7 @@ use Intervention\Image\Laravel\Facades\Image;
 
 class ImageService
 {
-    public function compress(UploadedFile $file): array
+    public function compress(UploadedFile $file): ImageCompressedDto
     {
         $image = Image::read($file);
 
@@ -25,11 +26,19 @@ class ImageService
         }
 
         $encoder = new WebpEncoder(quality: 85);
-        $encoded = (string) $image->encode($encoder);
-        $fileType = $image->encode($encoder)->mediaType();
+        $encodedImage = $image->encode($encoder);
+        $encoded = (string) $encodedImage;
+        $fileType = $encodedImage->mediaType();
+
+        $hash = hash('sha256', $encoded);
 
         $path = 'images/' . Str::uuid() . '.webp';
 
-        return [$encoded, $fileType, $path];
+        return ImageCompressedDto::from([
+            'encoded' => $encoded,
+            'fileType' => $fileType,
+            'path' => $path,
+            'hash' => $hash,
+        ]);
     }
 }

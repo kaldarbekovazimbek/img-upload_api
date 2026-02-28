@@ -2,99 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ApiCode;
 use App\Http\Requests\UploadImageRequest;
-use App\Models\Image;
-use App\Services\ImageService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Responses\ApiResponse;
+use App\Repository\ImageRepository;
+use App\UseCase\DeleteImageUseCase;
+use App\UseCase\StoreImageUseCase;
 
 class ImageController extends Controller
 {
-    public function __construct(
-        private readonly ImageService $imageService,
-    ) {
-    }
-
     public function index()
     {
-        $images = auth()->user()->images()->latest()->get();
+        $images = auth()->user()->images()->latest()->simplePaginate(15);
 
-        return response()->json($images);
+        return ApiResponse::success($images);
     }
 
-    public function upload(UploadImageRequest $request)
+    public function upload(UploadImageRequest $request, StoreImageUseCase $storeImageUseCase)
     {
-        $file = $request->file('image');
+        $image = $storeImageUseCase->execute($request->file('image'));
 
-        [$binaryData, $fileType, $path] = $this->imageService->compress($file);
-
-        // hash от нормализованных байтов
-        $hash = hash('sha256', $binaryData);
-
-        // ищем существующий файл
-        $existing = Image::query()->where('hash', $hash)->first();
-
-        if ($existing) {
-            if ($request->user()->images()->where('image_id', $existing->id)->exists()) {
-                return response()->json($existing, 200);
-            }
-
-            $existing->increment('reference_count');
-            $request->user()->images()->attach($existing->id);
-
-            return response()->json($existing, 201);
-        }
-
-        // если новый файл — сохраняем на диск
-        Storage::disk('images')->put($path, $binaryData);
-
-        // создаём запись в базе
-        $newImage = Image::create([
-            "name" => $file->getClientOriginalName(),
-            'hash' => $hash,
-            'path' => $path,
-            'disk' => 'public',
-            'mime_type' => $fileType,
-            'original_size' => $file->getSize(),
-            'size' => Storage::disk('public')->size($path),
-            'reference_count' => 1,
-        ]);
-
-        $request->user()->images()->attach($newImage->id);
-
-        return response()->json($newImage, 201);
+        return ApiResponse::success($image, 'Image uploaded successfully.', 201);
     }
 
-    public function get(Request $request, int $id)
+    public function show(int $id, ImageRepository $imageRepository)
     {
-        $image = auth()->user()->images()->find($id);
+        $image = $imageRepository->getById($id);
 
         if (!$image) {
-            return response()->json(['message' => 'Image not found.'], 404);
+            return ApiResponse::error(ApiCode::IMAGE_NOT_FOUND, 'Image not found.', 404);
         }
 
-        return response()->json($image);
+        return ApiResponse::success($image);
     }
 
-    public function delete(Request $request, int $id)
+    public function delete(int $id, DeleteImageUseCase $deleteImageUseCase)
     {
-        $user = auth()->user();
+        $deleteImageUseCase->execute($id);
 
-        if (!$user->images()->where('image_id', $id)->exists()) {
-            return response()->json(['message' => 'Image not found.'], 404);
-        }
-
-        $image = Image::find($id);
-
-        $user->images()->detach($id);
-
-        $image->decrement('reference_count');
-
-        if ($image->reference_count <= 0) {
-            Storage::disk($image->disk)->delete($image->path);
-            $image->delete();
-        }
-
-        return response()->json(['message' => 'Image deleted.']);
+        return ApiResponse::success(null, 'Image deleted successfully.');
     }
 }

@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ApiCode;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8',
-        ]);
+        $request->validated();
 
         $user = new User();
         $user->name = $request->name;
@@ -24,64 +23,40 @@ class AuthController extends Controller
         $user->save();
 
         $token = auth()->guard('api')->login($user);
-        return response()->json([
-            "status" => "success",
-            "message" => "User created successfully",
-            "user" => $user,
-            "auth" => [
-                "token" => $token,
-                "type" => "bearer"
-            ]
-        ]);
+
+        return ApiResponse::success([
+            'user' => $user,
+            'auth' => ['token' => $token, 'type' => 'bearer'],
+        ], 'User created successfully.', 201);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-        ]);
+        $request->validated();
 
-        $credentials = $request->only('email', 'password');
+        $token = auth('api')->attempt($request->only('email', 'password'));
 
-        $token = auth('api')->attempt($credentials);
         if (!$token) {
-            return response()->json([
-                "status" => "error",
-                "message" => "Unauthorized"
-            ], 401);
+            return ApiResponse::error(ApiCode::INVALID_CREDENTIALS, 'Invalid email or password.', 401);
         }
 
-        $user = auth('api')->user();
-        return response()->json([
-            "status" => "success",
-            "message" => "User login successfully",
-            "user" => $user,
-            "auth" => [
-                "token" => $token,
-                "type" => "bearer"
-            ]
-        ]);
+        return ApiResponse::success([
+            'user' => auth('api')->user(),
+            'auth' => ['token' => $token, 'type' => 'bearer'],
+        ], 'Logged in successfully.');
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
         auth('api')->logout();
-        return response()->json([
-            "status" => "success",
-            "message" => "User successfully signed out"
-        ]);
+
+        return ApiResponse::success(null, 'Logged out successfully.');
     }
 
-    public function refresh(Request $request): JsonResponse
+    public function refresh(): JsonResponse
     {
-        return response()->json([
-            "status" => "success",
-            "message" => "Token successfully refreshed",
-            "auth" => [
-                "token" => auth()->guard('api')->refresh(),
-                "type" => "bearer"
-            ],
-        ]);
+        return ApiResponse::success([
+            'auth' => ['token' => auth()->guard('api')->refresh(), 'type' => 'bearer'],
+        ], 'Token refreshed successfully.');
     }
 }
