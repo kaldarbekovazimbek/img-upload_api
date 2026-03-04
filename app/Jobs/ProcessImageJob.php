@@ -7,6 +7,7 @@ use App\Repository\ImageRepository;
 use App\Services\ImageService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -37,13 +38,15 @@ class ProcessImageJob implements ShouldQueue
             $existing = $imageRepository->getByHash($compressedDto->hash);
 
             if ($existing) {
-                if (!$imageRepository->isOwnedByUser($existing, $this->userId)) {
-                    $imageRepository->incrementReferenceCount($existing);
-                    $imageRepository->attachUser($existing, $this->userId);
-                }
+                DB::transaction(function () use ($imageRepository, $existing, $image) {
+                    if (!$imageRepository->isOwnedByUser($existing, $this->userId)) {
+                        $imageRepository->incrementReferenceCount($existing);
+                        $imageRepository->attachUser($existing, $this->userId);
+                    }
 
-                $imageRepository->detachUser($image, $this->userId);
-                $imageRepository->delete($image);
+                    $imageRepository->detachUser($image, $this->userId);
+                    $imageRepository->delete($image);
+                });
 
                 return;
             }

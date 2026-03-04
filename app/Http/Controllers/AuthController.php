@@ -6,23 +6,28 @@ use App\Enums\ApiCode;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Responses\ApiResponse;
-use App\Models\User;
+use App\UseCase\LoginUseCase;
+use App\UseCase\LogoutUseCase;
+use App\UseCase\RefreshTokenUseCase;
+use App\UseCase\RegisterUseCase;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        private readonly RegisterUseCase $registerUseCase,
+        private readonly LoginUseCase $loginUseCase,
+        private readonly LogoutUseCase $logoutUseCase,
+        private readonly RefreshTokenUseCase $refreshTokenUseCase,
+    ) {
+    }
+
     public function register(RegisterRequest $request): JsonResponse
     {
-        $request->validated();
+        $data = $request->validated();
 
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        $token = auth()->guard('api')->login($user);
+        ['user' => $user, 'token' => $token] = $this->registerUseCase->execute($data);
 
         return ApiResponse::success([
             'user' => $user,
@@ -32,31 +37,33 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $request->validated();
+        $data = $request->validated();
 
-        $token = auth('api')->attempt($request->only('email', 'password'));
+        $result = $this->loginUseCase->execute($data['email'], $data['password']);
 
-        if (!$token) {
+        if (!$result) {
             return ApiResponse::error(ApiCode::INVALID_CREDENTIALS, 'Invalid email or password.', 401);
         }
 
         return ApiResponse::success([
-            'user' => auth('api')->user(),
-            'auth' => ['token' => $token, 'type' => 'bearer'],
+            'user' => $result['user'],
+            'auth' => ['token' => $result['token'], 'type' => 'bearer'],
         ], 'Logged in successfully.');
     }
 
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        auth('api')->logout();
+        $this->logoutUseCase->execute($request->user());
 
         return ApiResponse::success(null, 'Logged out successfully.');
     }
 
-    public function refresh(): JsonResponse
+    public function refresh(Request $request): JsonResponse
     {
+        $token = $this->refreshTokenUseCase->execute($request->user());
+
         return ApiResponse::success([
-            'auth' => ['token' => auth()->guard('api')->refresh(), 'type' => 'bearer'],
+            'auth' => ['token' => $token, 'type' => 'bearer'],
         ], 'Token refreshed successfully.');
     }
 }

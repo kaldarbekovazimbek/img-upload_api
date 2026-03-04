@@ -5,19 +5,28 @@ namespace App\Repository;
 use App\Dto\ImageCompressedDto;
 use App\Enums\ImageStatus;
 use App\Models\Image;
+use Illuminate\Pagination\AbstractPaginator;
 
 class ImageRepository
 {
-    public function getById(int $id): ?Image
+    public function getById(int $id, int $userId): ?Image
     {
-        $userId = auth()->id();
-
         return Image::query()
             ->where('id', $id)
             ->whereHas('users', function ($query) use ($userId) {
                 $query->where('users.id', $userId);
             })
             ->first();
+    }
+
+    public function getByUser(int $userId): AbstractPaginator
+    {
+        return Image::query()
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
+            ->latest()
+            ->simplePaginate(15);
     }
 
     public function findById(int $id): ?Image
